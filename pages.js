@@ -62,5 +62,7 @@ window.SITE_ENC =
 ;
 
 window.PAGE_NUMBERS = [
-  100, 200, 300
+  100,
+  200,
+  300
 ];
