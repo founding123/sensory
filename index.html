@@ -393,9 +393,9 @@
   "hash": "SHA-256",
   "iterations": 600000,
   "cipher": "AES-GCM",
-  "salt": "yySVJrj3dyklANpLaE1XXA==",
-  "iv": "rmr3jMypFDIO+SMO",
-  "data": "SsEcBjNFKqcXA4uTDYXNf/eHoSuUppfpIa7rPYCsa5c836fNxBw="
+  "salt": "k344TGYreu4Y5ur07fsXsg==",
+  "iv": "3fd+osezYR15Z1PT",
+  "data": "CKs+wH6Gwu9pWxBpY2+V2xOTF1Tqi0OIyCu8P7d/tGFDvQ7gtLo="
 }
   </script>
 
@@ -433,6 +433,7 @@
       function escAttr(s){ return esc(s).replace(/"/g, '&quot;'); }
       function fileToName(f){ return String(f).replace(/\.html?$/i, '').replace(/[_-]+/g, ' ').trim(); }
       function pad(n){ n = String(n); while (n.length < 4) n = '0' + n; return n; }
+      function pad2(n){ n = String(n); while (n.length < 2) n = '0' + n; return n; }
 
       var grid = document.getElementById('grid');
       var countEl = document.getElementById('count');
@@ -483,13 +484,13 @@
         if (countEl) countEl.textContent = pages.length + ' SETS';
         if (fc) fc.textContent = pages.length;
         if (!pages.length) {
-          grid.innerHTML = '<div class="empty"><code>cNN.html</code>(예: <code>c01.html</code>) 이름으로 파일을 올리고, 그 안에 <code>&lt;meta name="page-title" content="..."&gt;</code> 또는 암호화된 페이지 제목을 넣으면 여기에 자동으로 나타납니다.</div>';
+          grid.innerHTML = '<div class="empty"><code>cNNNN.html</code>(예: <code>c0100.html</code>) 이름으로 파일을 올리고, 그 안에 <code>&lt;meta name="page-title" content="..."&gt;</code> 또는 암호화된 페이지 제목을 넣으면 여기에 자동으로 나타납니다.</div>';
           return;
         }
         var html = '';
         pages.forEach(function (p, idx) {
           html += '<a class="card" href="' + escAttr(p.file) + '">' +
-                    '<span class="num mono">' + pad(idx + 1) + '</span><span class="rule"></span>' +
+                    '<span class="num mono">' + pad2(idx + 1) + '</span><span class="rule"></span>' +
                     '<span class="name">' + esc(p.name) + '</span><span class="go">→</span>' +
                   '</a>';
         });
