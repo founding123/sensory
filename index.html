@@ -393,9 +393,9 @@
   "hash": "SHA-256",
   "iterations": 600000,
   "cipher": "AES-GCM",
-  "salt": "k344TGYreu4Y5ur07fsXsg==",
-  "iv": "3fd+osezYR15Z1PT",
-  "data": "CKs+wH6Gwu9pWxBpY2+V2xOTF1Tqi0OIyCu8P7d/tGFDvQ7gtLo="
+  "salt": "Z/3WHgKvdLRlG9bySl0EOA==",
+  "iv": "vohiSG2tZ1QEFLSu",
+  "data": "JK8UQPYEEnPmBQwx5tKFdj+C/aV937+wOsYIaFswXGLJU4CIPsQ="
 }
   </script>
 
@@ -473,14 +473,32 @@
         }
       }
 
-      async function buildGrid(unlocked) {
-        var seq = ++buildSeq;
-        grid.innerHTML = '<div class="empty">신탁 받는 중...</div>';
-        var tasks = PAGE_NUMBERS.map(function (n) { return readPage(n, !!unlocked); });
-        var results = await Promise.all(tasks);
-        if (seq !== buildSeq) return;
+      /* ── 목차 캐시 ──────────────────────────────────────────
+         해제된 세션에서 cNNNN들을 매번 다시 내려받아 복호화하지 않도록,
+         한 번 완성된(복호화까지 끝난) 목차를 sessionStorage에 저장해 둔다.
+         · 같은 세션(비밀번호 재입력 없이 오갈 수 있는 동안)에서만 유효
+         · PAGE_NUMBERS가 바뀌면 sig 불일치로 자동 폐기
+         · 탭/브라우저를 닫으면 비밀번호와 함께 사라짐(sessionStorage) */
+      var TOC_CACHE_KEY = 'sok-index-toc-v1';
+      var UNLOCKED_FLAG = 'sok-site-unlocked-v1';
+      function tocSig(){ return 'v1|' + PAGE_NUMBERS.join(','); }
+      function hasUnlockedSession(){
+        try { return sessionStorage.getItem(UNLOCKED_FLAG) === '1'; } catch (e) { return false; }
+      }
+      function readTocCache(){
+        if (!hasUnlockedSession()) return null;       // 해제된 세션에서만 캐시 사용
+        try {
+          var obj = JSON.parse(sessionStorage.getItem(TOC_CACHE_KEY) || 'null');
+          if (obj && obj.sig === tocSig() && Array.isArray(obj.pages)) return obj.pages;
+        } catch (e) {}
+        return null;
+      }
+      function writeTocCache(pages){
+        try { sessionStorage.setItem(TOC_CACHE_KEY, JSON.stringify({ sig: tocSig(), pages: pages })); }
+        catch (e) {}
+      }
 
-        var pages = results.filter(Boolean).sort(function (a, b) { return a.n - b.n; });
+      function renderGrid(pages){
         if (countEl) countEl.textContent = pages.length + ' SETS';
         if (fc) fc.textContent = pages.length;
         if (!pages.length) {
@@ -497,8 +515,36 @@
         grid.innerHTML = html;
       }
 
-      window.addEventListener('sok:index-unlocked', function () { buildGrid(true); });
-      buildGrid(false);
+      var renderedFromCache = false;
+
+      async function buildGrid(unlocked) {
+        var seq = ++buildSeq;
+        grid.innerHTML = '<div class="empty">신탁 받는 중...</div>';
+        var tasks = PAGE_NUMBERS.map(function (n) { return readPage(n, !!unlocked); });
+        var results = await Promise.all(tasks);
+        if (seq !== buildSeq) return;
+
+        var pages = results.filter(Boolean).sort(function (a, b) { return a.n - b.n; });
+        renderGrid(pages);
+        // 복호화된 제목으로 완성된 목차만 캐시에 저장한다.
+        if (unlocked && pages.length) writeTocCache(pages);
+      }
+
+      // 이미 해제된 세션이고 캐시가 현재 목록과 맞으면, 받아오지 말고 즉시 그린다.
+      var cached = readTocCache();
+      if (cached) {
+        renderedFromCache = true;
+        renderGrid(cached);
+      }
+
+      // 캐시로 이미 정확히 그렸다면 해제 이벤트가 와도 다시 빌드하지 않는다.
+      window.addEventListener('sok:index-unlocked', function () {
+        if (renderedFromCache) return;
+        buildGrid(true);
+      });
+
+      // 캐시가 없을 때(첫 방문·첫 해제 직후 등)만 처음부터 빌드한다.
+      if (!renderedFromCache) buildGrid(false);
     })();
   </script>
   <script src="assets/unlock.js"></script>
