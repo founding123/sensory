@@ -194,6 +194,37 @@ main{max-width:var(--maxw); margin:0 auto 64px; padding:0 18px}
 .stem{font-size:17px; margin:8px 0 14px}
 .qimg{display:block; max-width:100%; max-height:430px; margin:14px auto; border:1px solid var(--line); border-radius:12px; background:var(--paper)}
 
+/* 본문 이미지 2장 이상을 가로로 나란히. 폭이 모자라면 자동으로 세로 줄바꿈.
+   - 줄바꿈 시점은 아래 flex-basis(320px)로 조절: 값을 키우면 더 일찍 세로로,
+     줄이면 더 늦게(좁아질 때까지) 가로를 유지한다. */
+.qimg-row{
+  display:flex; flex-wrap:wrap; gap:14px;
+  justify-content:center; align-items:flex-start;
+  margin:14px 0;
+}
+.qimg-row .qimg{
+  margin:0;
+  flex:1 1 320px;        /* 가로 공유, 320px*2+gap 보다 좁아지면 세로로 떨어짐 */
+  min-width:0;           /* 칸 안에서 자유롭게 줄어들 수 있게 */
+  width:auto; height:auto;   /* 원본 비율 유지 */
+  max-width:100%; max-height:430px;
+  object-fit:contain;    /* 폭·높이 동시 제약 시 찌그러짐 대신 여백 처리 */
+}
+
+/* 문항 본문의 비교·소견 표(.exam-table)
+   - rowspan 칸 내용이 세로 가운데로 뜨지 않고 위쪽에 붙도록 vertical-align:top */
+.exam-table{
+
+}
+.exam-table th,
+.exam-table td{
+  vertical-align:top;          /* 칸 내용을 위에 붙임 */
+}
+.exam-table thead th{
+}
+[data-theme="쪽빛"] .exam-table thead th,
+[data-theme="미리내"] .exam-table thead th{color:var(--gold-soft)}
+
 .choices{list-style:none; counter-reset:item; margin:15px 0 18px; padding:0}
 .choices li{counter-increment:item; padding:6px 0 6px 34px; position:relative}
 .choices li::before{content:counter(item, circled-num); position:absolute; left:0; top:5px; color:var(--ink); font-weight:700; font-size:15px}
