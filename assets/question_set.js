@@ -81,3 +81,91 @@ function toggleOracle(btn){
     if(!dc.hidden && dc.querySelector('.oracle-fab')) sync();
   }).observe(dc, {childList:true, attributes:true, attributeFilter:['hidden']});
 })();
+
+/* ============================================================
+   하단 이전/다음 신탁 내비게이션 (#pagerNav)
+   - pages.js의 PAGE_NUMBERS 순서를 그대로 따른다.
+   - 이웃 페이지 제목은 그 파일의 pageMetaPayload를 복호화해 읽는다
+     (index.html이 목차 제목을 읽는 방식과 동일).
+   - 맨 앞/맨 뒤면 화살표와 함께 '처음/마지막'을 정중히 안내한다.
+   ============================================================ */
+(function () {
+  var nav = document.getElementById('pagerNav');
+  if (!nav) return;
+
+  function pad4(n){ n = String(n); while (n.length < 4) n = '0' + n; return n; }
+  function esc(s){ return String(s).replace(/[&<>]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
+
+  // 현재 페이지 번호 = 파일명 cNNNN.html 에서 추출
+  var fname = (location.pathname.split('/').pop() || '');
+  var mnum = fname.match(/c0*(\d+)\.html?$/i);
+  var current = mnum ? parseInt(mnum[1], 10) : NaN;
+
+  var nums = (window.PAGE_NUMBERS || []).slice().sort(function (a, b) { return a - b; });
+  var idx = nums.indexOf(current);
+  if (idx === -1) { nav.style.display = 'none'; return; } // 목록에 없는 페이지면 숨김
+
+  var prevNum = idx > 0 ? nums[idx - 1] : null;
+  var nextNum = idx < nums.length - 1 ? nums[idx + 1] : null;
+
+  async function neighborName(num){
+    var file = 'c' + pad4(num) + '.html';
+    try {
+      var res = await fetch(file);
+      if (!res.ok) return '';
+      var doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+      var m = doc.querySelector('meta[name="page-title"]');
+      var nm = (m && m.getAttribute('content')) ? m.getAttribute('content').trim() : '';
+      if (!nm && window.SOK_LOCK && window.SOK_LOCK.decryptStoredPayload){
+        var pe = doc.getElementById('pageMetaPayload');
+        if (pe){
+          try {
+            var meta = JSON.parse(await window.SOK_LOCK.decryptStoredPayload(JSON.parse(pe.textContent)));
+            if (meta && meta.title) nm = String(meta.title).trim();
+          } catch (e) {}
+        }
+      }
+      if (!nm){ var h = doc.querySelector('h1'); if (h) nm = h.textContent.trim(); }
+      return nm;
+    } catch (e) { return ''; }
+  }
+
+  function titleSpan(name){ return name ? '<span class="pager-title">' + esc(name) + '</span>' : ''; }
+
+  function linkHTML(side, num, name){
+    var href = 'c' + pad4(num) + '.html';
+    if (side === 'prev'){
+      return '<a class="pager prev" href="' + href + '">' +
+               '<span class="pager-arrow">←</span>' +
+               '<span class="pager-text"><span class="pager-kicker">이전</span>' + titleSpan(name) + '</span>' +
+             '</a>';
+    }
+    return '<a class="pager next" href="' + href + '">' +
+             '<span class="pager-text"><span class="pager-kicker">다음</span>' + titleSpan(name) + '</span>' +
+             '<span class="pager-arrow">→</span>' +
+           '</a>';
+  }
+
+  function edgeHTML(side, label){
+    if (side === 'prev'){
+      return '<span class="pager is-edge prev" aria-disabled="true">' +
+               '<span class="pager-arrow">←</span>' +
+               '<span class="pager-text"><span class="pager-kicker">이전</span>' +
+               '<span class="pager-title">' + esc(label) + '</span></span>' +
+             '</span>';
+    }
+    return '<span class="pager is-edge next" aria-disabled="true">' +
+             '<span class="pager-text"><span class="pager-kicker">다음</span>' +
+             '<span class="pager-title">' + esc(label) + '</span></span>' +
+             '<span class="pager-arrow">→</span>' +
+           '</span>';
+  }
+
+  async function build(){
+    var left  = (prevNum != null) ? linkHTML('prev', prevNum, await neighborName(prevNum)) : edgeHTML('prev', '여기가 처음입니다');
+    var right = (nextNum != null) ? linkHTML('next', nextNum, await neighborName(nextNum)) : edgeHTML('next', '여기가 마지막입니다');
+    nav.innerHTML = left + right;
+  }
+
+  build();
+})();

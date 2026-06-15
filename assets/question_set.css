@@ -281,11 +281,53 @@ main{max-width:var(--maxw); margin:0 auto 64px; padding:0 18px}
 .backpill .arrow{font-size:16px; line-height:1}
 
 /* ============================================================
+   하단 이전/다음 신탁 내비게이션 (#pagerNav)
+   ============================================================ */
+.pagernav{
+  max-width:var(--maxw); margin:0 auto; padding:34px 18px 46px;
+  display:grid; grid-template-columns:1fr 1fr; gap:12px;
+}
+.pager{
+  display:flex; align-items:center; gap:12px; min-width:0;
+  background:var(--paper); border:1px solid var(--line); border-radius:16px;
+  padding:14px 18px; text-decoration:none; color:var(--ink);
+  box-shadow:var(--card-shadow);
+  transition:transform .16s ease, border-color .16s ease, box-shadow .16s ease, background .25s ease, color .25s ease;
+}
+a.pager:hover{transform:translateY(-2px); border-color:var(--gold); box-shadow:var(--card-shadow-hover)}
+a.pager:focus-visible{outline:2px solid var(--blue); outline-offset:3px}
+.pager.is-edge{cursor:default; background:color-mix(in srgb, var(--ink) 3%, var(--paper)); box-shadow:none}
+
+.pager-arrow{flex:0 0 auto; font-size:20px; line-height:1; color:var(--gold-deep)}
+a.pager:hover .pager-arrow{color:var(--gold-deep)}
+.pager.is-edge .pager-arrow{color:var(--muted)}
+[data-theme="쪽빛"] .pager-arrow,[data-theme="미리내"] .pager-arrow{color:var(--gold-soft)}
+
+.pager-text{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:3px}
+.pager.next .pager-text{text-align:right}
+.pager-kicker{
+  display:block; font-size:11px; font-weight:800; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--gold-deep);
+}
+[data-theme="쪽빛"] .pager-kicker,[data-theme="미리내"] .pager-kicker{color:var(--gold-soft)}
+.pager.is-edge .pager-kicker{color:var(--muted)}
+.pager-title{
+  display:block; font-size:15.5px; font-weight:700; letter-spacing:-.015em; line-height:1.35;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.pager.is-edge .pager-title{font-weight:600; color:var(--muted)}
+
+@media (max-width:560px){
+  .pagernav{grid-template-columns:1fr; padding:26px 16px 40px; gap:10px}
+  .pager{padding:13px 16px}
+}
+
+/* ============================================================
    인쇄 (테마 무관하게 밝게 강제 + 모든 패널 펼침)
    ============================================================ */
 @media print{
   body{background:#fff; color:#111}
-  .backlink,.toolbar,.theme-dock,.toggle-answer,.evidence-toggle,.evidence-collapse,.backpill-wrap{display:none!important}
+  .backlink,.toolbar,.theme-dock,.toggle-answer,.evidence-toggle,.evidence-collapse,.backpill-wrap,.pagernav{display:none!important}
   .hero{background:#fff; color:#111; border-bottom:1px solid #aaa; padding:18px 0}
   .hero::after{display:none}
   .hero h1,.title{color:#111; text-shadow:none}
