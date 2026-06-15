@@ -100,6 +100,7 @@
     try {
       sessionStorage.removeItem(PASS_KEY);
       sessionStorage.removeItem(UNLOCKED_KEY);
+      sessionStorage.removeItem('sok-index-toc-v1'); // 목차 캐시도 함께 폐기
     } catch (e) {}
   }
 
