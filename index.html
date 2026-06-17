@@ -313,6 +313,33 @@
   .unlock-msg{min-height:20px; margin-top:11px; font-size:13px; color:var(--muted)}
   [data-theme="쪽빛"] .unlock-msg,
   [data-theme="미리내"] .unlock-msg{color:var(--hero-sub)}
+/* 비밀번호 없이 다른 홈페이지로 이동하는 보조 버튼 */
+  .unlock-alt-sep{
+    display:flex; align-items:center; gap:10px;
+    margin:16px 0 0; color:var(--muted); font-size:12px; letter-spacing:.04em;
+  }
+  .unlock-alt-sep::before,
+  .unlock-alt-sep::after{content:""; flex:1 1 auto; height:1px; background:var(--line)}
+  [data-theme="쪽빛"] .unlock-alt-sep,
+  [data-theme="미리내"] .unlock-alt-sep{color:var(--hero-sub)}
+  .unlock-alt{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    margin-top:12px; padding:12px 14px; text-decoration:none;
+    border:1px solid color-mix(in srgb, var(--gold) 38%, var(--line)); border-radius:12px;
+    background:color-mix(in srgb, var(--paper) 70%, transparent);
+    color:var(--gold-deep); font-weight:700; font-size:14px;
+    transition:border-color .16s ease, background .16s ease, color .16s ease, transform .16s ease;
+  }
+  .unlock-alt:hover{
+    border-color:var(--gold);
+    background:color-mix(in srgb, var(--gold) 12%, var(--paper));
+    transform:translateY(-1px);
+  }
+  .unlock-alt:focus-visible{outline:2px solid var(--blue); outline-offset:3px}
+  .unlock-alt .arr{transition:transform .18s ease}
+  .unlock-alt:hover .arr{transform:translateX(3px)}
+  [data-theme="쪽빛"] .unlock-alt,
+  [data-theme="미리내"] .unlock-alt{color:var(--gold-soft)}
   @media (max-width:560px){
     .unlock-row{flex-direction:column}
     .unlock-row input,.unlock-row button{width:100%}
@@ -347,13 +374,21 @@
 
       <section class="unlock-card" aria-label="비밀번호 입력">
         <div class="lock-label">Locked</div>
-        <h1>입력해주십시오.</h1>
-        <p>아직 이 세션은 사용 불가합니다.</p>
+        <h1>감각기학</h1>
+        <p>아래에 입력해주십시오.</p>
         <div class="unlock-row">
           <input id="indexPassphrase" type="password" autocomplete="off" placeholder="문자열 입력" aria-label="비밀번호">
           <button id="indexUnlockBtn" type="button">해제</button>
         </div>
         <div class="unlock-msg" id="indexUnlockMsg" aria-live="polite"></div>
+
+        <!-- ▼▼▼ 비밀번호 없이 이동할 다른 홈페이지 ▼▼▼ -->
+        <div class="unlock-alt-sep">또는</div>
+        <a class="unlock-alt" href="https://founding123.github.io/family">
+          <span>가정의학으로 이동</span>
+          <span class="arr" aria-hidden="true">→</span>
+        </a>
+        <!-- ▲▲▲ -->
       </section>
 
       <div class="locked-content">
@@ -393,9 +428,9 @@
   "hash": "SHA-256",
   "iterations": 600000,
   "cipher": "AES-GCM",
-  "salt": "Z/3WHgKvdLRlG9bySl0EOA==",
-  "iv": "vohiSG2tZ1QEFLSu",
-  "data": "JK8UQPYEEnPmBQwx5tKFdj+C/aV937+wOsYIaFswXGLJU4CIPsQ="
+  "salt": "HIlvRhNYhJcmgQAY9Y31tg==",
+  "iv": "3s8nontnGJp62WYd",
+  "data": "AdorRAngn/q11u8BPWeE12ByNdx9SJ4yjlCtmM4W8RgtRLT1Cc8="
 }
   </script>
 
